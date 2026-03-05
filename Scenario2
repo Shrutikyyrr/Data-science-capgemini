@@ -1,0 +1,48 @@
+
+# Scenario:
+# We want to classify whether a restaurant order is “Large” (1) or “Small” (0) based on the number
+#  of items ordered.
+# - If items ≥ 3 → Large order
+# - If items < 3 → Small order
+import numpy as np
+
+# Step 1: Training Data
+# X = number of items ordered, y = order size
+X = np.array([[1], [2], [3], [4]])   # input: items in order
+y = np.array([0, 0, 1, 1])           # output: small=0, large=1
+
+# Step 2: Initialize weights and bias
+weights = np.random.rand(1)   # single input → single weight
+bias = np.random.rand(1)
+learning_rate = 0.1
+
+# Step 3: Activation Function (Step function)
+def activation(z):
+    return 1 if z >= 0 else 0
+
+# Step 4: Training Loop
+for epoch in range(10):  # run for 10 iterations
+    print(f"Epoch {epoch+1}")
+    for i in range(len(X)):
+        # Linear combination
+        z = np.dot(X[i], weights) + bias
+        y_pred = activation(z)
+
+        # Error
+        error = y[i] - y_pred
+
+        # Update rule
+        weights += learning_rate * error * X[i]
+        bias += learning_rate * error
+
+        print(f"Items: {X[i]}, Predicted: {y_pred}, Actual: {y[i]}, Error: {error}")
+
+print("\nFinal Weights:", weights)
+print("Final Bias:", bias)
+
+# Step 5: Test the perceptron
+test_items = np.array([2, 5])
+
+for item in test_items:
+    z = np.dot(item, weights) + bias
+    print(f"Items Ordered: {item}, Prediction: {activation(z)}")
