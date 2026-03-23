@@ -1,0 +1,139 @@
+{
+  "info": {
+    "name": "Section 2 – Student API Tests",
+    "_postman_id": "section2-collection",
+    "description": "Postman collection with test cases for Student Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "student_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Test 1 – Create Student (201)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+            "pm.test('Has id field', () => pm.expect(pm.response.json()).to.have.property('id'));",
+            "pm.test('Name is Alice', () => pm.expect(pm.response.json().name).to.eql('Alice'));",
+            "pm.collectionVariables.set('student_id', pm.response.json().id);"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\": \"Alice\", \"age\": 21, \"course\": \"AI\"}" },
+        "url": { "raw": "{{base_url}}/students", "host": ["{{base_url}}"], "path": ["students"] }
+      }
+    },
+    {
+      "name": "Test 2 – Get Student by ID (200)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Correct student returned', () => pm.expect(pm.response.json().name).to.eql('Alice'));"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["students", "{{student_id}}"] }
+      }
+    },
+    {
+      "name": "Test 3 – Get Student Not Found (404)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));",
+            "pm.test('Error detail present', () => pm.expect(pm.response.json().detail).to.eql('Student not found'));"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/students/9999", "host": ["{{base_url}}"], "path": ["students", "9999"] }
+      }
+    },
+    {
+      "name": "Test 4 – Filter by Course (200)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('All results are AI', () => { pm.response.json().forEach(s => pm.expect(s.course).to.eql('AI')); });"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/students?course=AI", "host": ["{{base_url}}"], "path": ["students"], "query": [{ "key": "course", "value": "AI" }] }
+      }
+    },
+    {
+      "name": "Test 5 – Update Student (200)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Age updated to 25', () => pm.expect(pm.response.json().age).to.eql(25));"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"age\": 25}" },
+        "url": { "raw": "{{base_url}}/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["students", "{{student_id}}"] }
+      }
+    },
+    {
+      "name": "Test 6 – Validation Error (422)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 422 Unprocessable', () => pm.response.to.have.status(422));"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\": \"\", \"age\": -1, \"course\": \"\"}" },
+        "url": { "raw": "{{base_url}}/students", "host": ["{{base_url}}"], "path": ["students"] }
+      }
+    },
+    {
+      "name": "Test 7 – Delete Student (204)",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ],
+          "type": "text/javascript"
+        }
+      }],
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{base_url}}/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["students", "{{student_id}}"] }
+      }
+    }
+  ]
+}
